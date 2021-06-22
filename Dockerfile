@@ -15,7 +15,7 @@ RUN apt-get update \
     && apt-get autoremove
 
 ADD workflow /home/App
-WORKDIR /home/App
+WORKDIR /home/App/exec
 COPY requirements.txt ./
 
 RUN apt-get install libffi-dev -y
