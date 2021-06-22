@@ -21,3 +21,6 @@ COPY requirements.txt ./
 RUN apt-get install libffi-dev -y
 RUN python3 -m pip install --upgrade pip
 RUN pip3 install -r requirements.txt
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
