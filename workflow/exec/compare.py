@@ -91,7 +91,3 @@ def candidates(name,regions,average):
 
 
 
-
-
-
-

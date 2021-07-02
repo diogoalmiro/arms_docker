@@ -38,9 +38,15 @@ from pathlib import Path
 
 
 def export_pdf(playground, default_dpi, savefile=False):
-  
-    images = sorted(glob.glob(os.path.join(playground, '*.tiff')))
-   
+    images = []    
+    images_old = glob.glob(os.path.join(playground, '*.tiff'))
+
+    for i in range(1,len(images_old)+1,1):
+        page = "page_{}.tiff".format(i)
+        for elem in images_old:
+            if elem.find(page) != -1:
+                images.append(elem)
+
     if len(images) == 0:
         print("WARNING: No images found in the folder")
         sys.exit(0)

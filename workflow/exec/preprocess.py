@@ -68,8 +68,6 @@ def remove_noise(image):
  
 #thresholding
 def thresholding(image):
-    # threshold the image, setting all foreground pixels to
-    # 255 and all background pixels to 0
     img = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     return img
 

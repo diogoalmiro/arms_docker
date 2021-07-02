@@ -21,8 +21,8 @@ def define_regions(image,langs):
 	with tr.PyTessBaseAPI(path=TESSDATA_PATH, lang=lang) as api:
 		api.SetImage(img)
 		hocr_file = api.GetHOCRText(0)
-		boxes = api.GetComponentImages(tr.RIL.TEXTLINE,True)
-		
+		boxes = api.GetComponentImages(tr.RIL.TEXTLINE,True)		
+
 		i = 1
 		for (_,box,_,_) in boxes:
 
