@@ -6,31 +6,40 @@ import os
 # Add and remove folders
 
 
-def create_TMP(name):
+def create_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name 
+	folder = current/"tmp"/batch_name/name 
 	if not Path(folder).exists():
 		Path(folder).mkdir()
 
 
-def create_PAGES_TMP(name):
+def create_PAGES_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name/"pages"
+	folder = current/"tmp"/batch_name/name/"pages"
 	if not Path(folder).exists():
 		Path(folder).mkdir()
 
 
-def create_REG_TMP(name):
+def create_REG_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name/"regions"
+	folder = current/"tmp"/batch_name/name/"regions"
 	if not Path(folder).exists():
 		Path(folder).mkdir()
 
 
-def create_RESULT(name): 
+def create_RESULT(batch_name,name): 
+
+	previous = Path.cwd().parents[0]
+	folder = previous/"results"/batch_name/name
+	if not Path(folder).exists():
+		Path(folder).mkdir()
+
+
+
+def create_RESULT_B(name): 
 
 	previous = Path.cwd().parents[0]
 	folder = previous/"results"/name
@@ -38,35 +47,36 @@ def create_RESULT(name):
 		Path(folder).mkdir()
 
 
-def create_CORRECTION(name): 
+def create_TMP_B(name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name/"correction"
+	folder = current/"tmp"/name 
 	if not Path(folder).exists():
 		Path(folder).mkdir()
 
 
-def delete_TMP(name):
+def delete_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name
+	folder = current/"tmp"/batch_name/name
 	for f in folder.glob(".JSON"):
 		f.unlink()
 	folder.rmdir()
 
 
-def delete_REG_TMP(name):
+def delete_REG_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name/"regions"
+	folder = current/"tmp"/batch_name/name/"regions"
 	for f in folder.glob("*.JSON"):
 		f.unlink()
 	folder.rmdir()
 
-def delete_IMG_TMP(name):
+
+def delete_IMG_TMP(batch_name,name):
 
 	current = Path.cwd()
-	folder = current/"tmp"/name/"pages"
+	folder = current/"tmp"/batch_name/name/"pages"
 	for f in folder.glob("*.tiff"):
 		f.unlink()
 

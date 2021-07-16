@@ -10,20 +10,18 @@ from pathlib import Path
 import folderManager
 import docManager
 
-def split_pages(file):
+def split_pages(file,batch_name):
 	img_path = file
 	name = file.parts[-1]
-	pages_path = str(Path.cwd()/"tmp"/name/"pages")
+	pages_path = str(Path.cwd()/"tmp"/batch_name/name/"pages")
 	img = Image.open(img_path)
-	folderManager.create_TMP(name)
-	folderManager.create_PAGES_TMP(name)
-	pages_left = docManager.get_field(name,'split')
+	pages_left = docManager.get_field(batch_name,name,'split')
 
 	for i in range(pages_left,-1,-1):
 		try:
 			img.seek(i-1)
 			img.save(pages_path + "/page_%s.tiff" %i, compression="raw")
-			docManager.update_field(name,'split',(i-1))
+			docManager.update_field(batch_name,name,'split',(i-1))
 		except EOFError:
 			break
 

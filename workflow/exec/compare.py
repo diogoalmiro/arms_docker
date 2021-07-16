@@ -6,8 +6,8 @@ import docManager
 import folderManager
 import shutil
 
-def get_ocr(name):
-	path = Path.cwd()/"tmp"/name/"regions"/"regions.JSON"
+def get_ocr(name,batch_name):
+	path = Path.cwd()/"tmp"/batch_name/name/"regions"/"regions.JSON"
 	with open(path,"rb") as file:
 		data = json.load(file)
 		return data
@@ -23,8 +23,8 @@ def get_hocr(name,page):
 	return lines
 
 
-def compare(name,page):
-	aux = get_ocr(name)
+def compare(name,page,batch_name):
+	aux = get_ocr(name,batch_name)
 	d1 = get_hocr(name,page)
 	new_d1 = []
 
@@ -53,41 +53,18 @@ def compare(name,page):
 	return new_d1
 
 
-def modify(name,tmp):
-	path = Path.cwd()/"tmp"/name/"pages"
+def modify(name,tmp,batch_name):
+	path = Path.cwd()/"tmp"/batch_name/name/"pages"
 	for page in path.glob("*.hocr"):
-		changes = compare(name,page)
+		changes = compare(name,page,batch_name)
 		pw.change_hocr(page,changes)
 
-
-	#	if correction:
-	#		candidates(name,changes,average)
 		if not tmp:
-			docManager.delete_regions(name)
+			docManager.delete_regions(batch_name,name)
 
 
 					
 
-def candidates(name,regions,average):
-	folderManager.create_CORRECTION(name)
-	candidates = []
-	filenames = []
-	destination = str(Path.cwd()/"tmp"/name/"correction")
-	all_pages = get_ocr(name)
-	
-	for element in regions:
-		if sum(element['word_conf'])/len(element['word_conf']) < average:
-			candidates.append(element['id'])
-
-
-	for page in all_pages:
-		for region in page['regions']:
-			if region['id'] in candidates:
-				filenames.append(regions['filename'])
-
-	for element in filenames:
-		file = element.split("/")[-1]
-		shutil.move(element,destination+file)
 
 
 

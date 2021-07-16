@@ -155,20 +155,17 @@ CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=
     pdfmetrics.registerFont(TTFont('invisible', ttf))
 
 
-def merge(name,tmp):
-    
-    folderManager.create_RESULT(name)
+def merge(name,tmp,batch_name):
     filename = name+'.pdf'
     
-    path = Path.cwd()/"tmp"/name/"pages"
-    path2 = Path.cwd().parents[0]/"results"/name/filename
+    path = Path.cwd()/"tmp"/batch_name/name/"pages"
+    path2 = Path.cwd().parents[0]/"results"/batch_name/name/filename
 
     export_pdf(path,200,str(path2))
 
     
     if not tmp:
-        #folderManager.delete_REG_TMP(name)
-        folderManager.delete_IMG_TMP(name)
-        #folderManager.delete_TMP(name)
+        folderManager.delete_IMG_TMP(batch_name,name)
+
 
 

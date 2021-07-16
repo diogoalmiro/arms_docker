@@ -4,18 +4,23 @@ import shutil
 from PIL import Image
 
 
-def write_name(file):
-	if check_name(file) == False:
+def write_name(batch_name,file):				#file = /home/App/docs/S-1911-0009-0009-00001 UC.tiff
+	if check_name(batch_name,file) == False:
 		doc = make_doc(file)
-		name = doc['name']
+		name = str(Path.cwd()/"tmp"/batch_name/doc['name'])+".JSON"
 		update_data(name,doc)
 
 
-def check_name(file):
-	filename = str(file.parts[-1]) + ".JSON"
-	path = Path.cwd()/"tmp"/filename
+def check_name(batch_name,file):
+	filename = str(file.parts[-1]) + ".JSON"	#filename = S-1911-0009-0009-00001 UC.tiff.JSON
+	path = Path.cwd()/"tmp"/batch_name/filename
 	return path.exists()
 
+
+def write_process(batch_name):
+	process = make_process(batch_name)
+	path = str(Path.cwd()/"tmp"/batch_name)+".JSON"
+	update_data(path,process)
 
 
 def make_doc(path):
@@ -37,57 +42,65 @@ def make_doc(path):
 	return file
 
 
-def update_field(name,field,value):
-	data = get_data(name)
+def make_process(batch_name):
 
+	process={}
+	process['name'] = str(batch_name)
+	process['files'] = []
+
+	return process
+
+def delete_process(batch_name):
+	filename = str(Path.cwd()/"tmp"/batch_name) + ".JSON"
+	Path(filename).unlink()
+
+def add_file(batch_name,file):
+	path = str(Path.cwd()/"tmp"/batch_name) +".JSON"
+	data = get_data(path)
+	data['files'].append(str(file))
+	update_data(path,data)
+
+
+def get_files(batch_name):
+	path = str(Path.cwd()/"tmp"/batch_name) +".JSON"
+	data =get_data(path)
+	return data['files']
+
+
+def update_field(batch_name,name,field,value):
+	path = str(Path.cwd()/"tmp"/batch_name/name)+".JSON"
+	data = get_data(path)
 	data['status'][field] = value
+	update_data(path,data)
 
-	update_data(name,data)
 
-
-def get_field(name,field):
-	data = get_data(name)
-
+def get_field(batch_name,name,field):
+	path = str(Path.cwd()/"tmp"/batch_name/name)+".JSON"
+	data = get_data(path)
 	return data['status'][field]
 
 
-def delete_data(name):
-	filename = str(name) + ".JSON"
-	path = Path.cwd()/"tmp"/filename
-	path.unlink()
+def delete_data(batch_name,name):
+	filename = str(Path.cwd()/"tmp"/batch_name/name) + ".JSON"
+	Path(filename).unlink()
 
 
 def update_data(name,data):
-	filename = str(name) + ".JSON"
-	path = str(Path.cwd()/"tmp"/filename)
-	with open(path,'w') as file:
+	with open(name,'w') as file:
 		json.dump(data,file)
 
 
 def get_data(name):
-	filename = str(name) + ".JSON"
-	path = Path.cwd()/"tmp"/filename
-	with path.open() as file:
+	with Path(name).open() as file:
 		data = json.load(file)
 		return data
 
 
-def delete_page(name,page):
-	path = Path.cwd()/"tmp"/name/"pages"/"page_%s.tiff"%page
-	path.unlink()
-
-
-def delete_regions(name):
-	path = Path.cwd()/"tmp"/name/"regions"
+def delete_regions(batch_name,name):
+	path = Path.cwd()/"tmp"/batch_name/name/"regions"
 	for elem in path.glob("*.tiff"):
 		elem.unlink()
 
-
-def is_finished(name):
-	data = get_data(name)
-	source = Path(data['path'])
-	destination = Path.cwd().parents[0]/"results"/name/name
-	shutil.move(source,destination)
 
 
 def parse_langs(langs):

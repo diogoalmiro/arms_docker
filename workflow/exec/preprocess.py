@@ -24,11 +24,10 @@ def pre(image,langs):
 
 
 
-def pre_process(name,langs,prep):
-	folderManager.create_REG_TMP(name)
-	path = Path.cwd()/"tmp"/name/"pages"
-	destination = Path.cwd()/"tmp"/name/"regions"
-	pages_left = docManager.get_field(name,'preprocess')
+def pre_process(name,langs,prep,batch_name):
+	path = Path.cwd()/"tmp"/batch_name/name/"pages"
+	destination = Path.cwd()/"tmp"/batch_name/name/"regions"
+	pages_left = docManager.get_field(batch_name,name,'preprocess')
 
 	for i in range(pages_left,0,-1):
 		image = path/"page_{}.tiff".format(i)
@@ -42,7 +41,7 @@ def pre_process(name,langs,prep):
 			input_img.save(str(imgname))
 
 		
-		docManager.update_field(name,'preprocess',(i-1))
+		docManager.update_field(batch_name,name,'preprocess',(i-1))
 		
 
 def add_preprocess(img_path,img_name):

@@ -60,11 +60,11 @@ def crop(coords,image):
 
 
 
-def save(name,lang,tmp):
-	path = Path.cwd()/"tmp"/name/"regions"
-	path2 = Path.cwd()/"tmp"/name/"pages"
+def save(name,lang,tmp,batch_name):
+	path = Path.cwd()/"tmp"/batch_name/name/"regions"
+	path2 = Path.cwd()/"tmp"/batch_name/name/"pages"
 	blocks = []
-	pages_left = docManager.get_field(name,'segment')
+	pages_left = docManager.get_field(batch_name,name,'segment')
 
 
 	for i in range(pages_left,0,-1):
@@ -90,10 +90,11 @@ def save(name,lang,tmp):
 			
 			image.unlink()
 
+		docManager.update_field(batch_name,name,'segment',(i-1))
+
 	with open(path/'regions.JSON','w') as file:
 		json.dump(blocks,file)
 
-	docManager.update_field(name,'segment',(i-1))
 	
 	return blocks
 
