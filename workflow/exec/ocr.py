@@ -25,8 +25,8 @@ def ocr(name,langs,batch_name):
 				api.SetImage(img)
 				text = api.GetUTF8Text().replace("\n","").split()
 				conf = api.AllWordConfidences()
-				update_field(batch_name,name,str(image),"text",text,batch_name)
-				update_field(batch_name,name,str(image),"word_conf",conf,batch_name)
+				update_field(name,str(image),"text",text,batch_name)
+				update_field(name,str(image),"word_conf",conf,batch_name)
 
 		docManager.update_field(batch_name,name,'ocr',(i-1))
 	
