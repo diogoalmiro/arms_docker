@@ -1,11 +1,14 @@
+import warnings
+from PIL import Image
 import cv2
 import numpy as np
 import tesserocr as tr
-from PIL import Image
 from pathlib import Path
 import folderManager
 import docManager
 import json
+
+warnings.simplefilter("ignore", Image.DecompressionBombWarning)
 
 #coords = [x,y,w,h]
 TESSDATA_PATH = str(Path.cwd().parents[0]/'tessdata')

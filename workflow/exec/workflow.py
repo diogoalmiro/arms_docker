@@ -13,9 +13,10 @@ import tesserocr
 import datetime
 import folderManager
 import time
+import warnings
 
 
-def to_do(file,lang,tmp,prep,comp,batch_name):
+def to_do(file,lang,tmp,prep,comp,batch_name,pdf):
 	n = file['name']
 	status = file['status']
 	path = file['path']
@@ -26,7 +27,10 @@ def to_do(file,lang,tmp,prep,comp,batch_name):
 		print("Splitting %s"%n)
 		folderManager.create_TMP(batch_name,n)
 		folderManager.create_PAGES_TMP(batch_name,n)
-		split.split_pages(Path(path),batch_name)
+		if (pdf):
+			split.split_pages_pdf(Path(path),batch_name)
+		else:
+			split.split_pages(Path(path),batch_name)
 		print("%s splitted - %s"%(n,(time.time()-st2)))
 
 
@@ -73,11 +77,11 @@ def to_do(file,lang,tmp,prep,comp,batch_name):
 	docManager.delete_data(batch_name,n)
 
 
-def process(image,batch_name,lang,tmp,prep,comp):
+def process(image,batch_name,lang,tmp,prep,comp,pdf):
 	inputFile = Path(image)
-	docManager.write_name(batch_name,inputFile)
+	docManager.write_name(batch_name,inputFile,pdf)
 	doc = docManager.get_data(str(Path.cwd()/"tmp"/batch_name/inputFile.parts[-1]) + '.JSON')
-	to_do(doc,lang,tmp,prep,comp,batch_name)
+	to_do(doc,lang,tmp,prep,comp,batch_name,pdf)
 	docManager.add_file(batch_name,inputFile)
 	print("Done")
 
@@ -87,13 +91,21 @@ def exists(batch_name):
 		return True
 
 
-def forcing(path):
-	batch_name = str(path.parts[-1])
+def forcing(path,batch_name):
 	process = Path.cwd()/"tmp"/batch_name
 	if exists(batch_name):
 		for file in process.glob("*.JSON"):
 			Path(file).unlink()
+		(Path.cwd().parents[0]/"results"/batch_name/path.parts[-1]/(str(path.parts[-1])+".pdf")).unlink()
 		docManager.delete_process(batch_name)
+		folderManager.create_TMP_B(batch_name)
+		folderManager.create_RESULT_B(batch_name)
+		docManager.write_process(batch_name)
+
+def finished(batch_name,path):
+	file = str(path.parts[-1])+".pdf"
+	if ((Path.cwd().parents[0]/"results"/batch_name/path.parts[-1]/file).exists()):
+		return True
 
 
 @click.command()
@@ -110,73 +122,98 @@ def forcing(path):
 def main(file,lang,tmp,folder,prep,comp,force):
 	st1= time.time()
 	files = []
-	if (folder):
-		
-		path = Path(file)
-		batch_name = str(path.parts[-1])
-		
-		if (force):
-			forcing(path)
-			folderManager.create_TMP_B(batch_name)
-			folderManager.create_RESULT_B(batch_name)
-			docManager.write_process(batch_name)
-			
-			for image in path.glob("*.tif"):
-					image.rename(image.with_suffix(".tiff"))
 
-			for image in path.glob("*.tiff"):
-					process(image,batch_name,lang,tmp,prep,comp)
-		
-		else: 
-			if exists(batch_name):
-				
-				print("{} already exists and the process will continue".format(batch_name))
-				print("To start again, use --force ")
-				files = docManager.get_files(batch_name)
-				
-				for image in path.glob("*.tif"):
-					if str(image) not in files:
-						image.rename(image.with_suffix(".tiff"))
+	path = Path(file)
+	batch_name = str(path.parts[-1])
 
-				for image in path.glob("*.tiff"):
-					if str(image) not in files:
-						process(image,batch_name,lang,tmp,prep,comp)
-			else: 
-				
-				folderManager.create_TMP_B(batch_name)
-				folderManager.create_RESULT_B(batch_name)
-				docManager.write_process(batch_name)
-				
-				for image in path.glob("*.tif"):
-						image.rename(image.with_suffix(".tiff"))
-
-				for image in path.glob("*.tiff"):
-						process(image,batch_name,lang,tmp,prep,comp)
+	if (finished(batch_name,path) and not force):
+		print("Process completed. To start again, use --force")
 
 	else:
-		path = Path(file)
-		batch_name = str(path.parts[-1])
+		if (folder):	
+			if (force):
+				forcing(path,batch_name)
 
-		if (force):
-			forcing(path)
-			folderManager.create_TMP_B(batch_name)
-			folderManager.create_RESULT_B(batch_name)
-			docManager.write_process(batch_name)
-			process(path,batch_name,lang,tmp,prep,comp)
+				
+				for image in path.glob("*.tif"):
+					image.rename(image.with_suffix(".tiff"))
 
-		else: 
-			if exists(batch_name):
-				print("{} already exists and the process will continue. To start again, use --force".format(batch_name))
-				files = docManager.get_files(batch_name)
-				if str(file not in files):
-					process(file,batch_name,lang,tmp,prep,comp)
+				for image in path.glob("*.tiff"):
+					process(image,batch_name,lang,tmp,prep,comp,False)
+
+				for image in path.glob(".pdf"):
+					process(image,batch_name,lang,tmp,prep,comp,True)
+					
+			
 			else: 
-				folderManager.create_TMP_B(batch_name)
-				folderManager.create_RESULT_B(batch_name)
-				docManager.write_process(batch_name)
-				process(path,batch_name,lang,tmp,prep,comp)
+				if exists(batch_name):
+					
+					print("{} already exists and the process will continue".format(batch_name))
+					print("To start again, use --force ")
+					files = docManager.get_files(batch_name)
+					
+					for image in path.glob("*.tif"):
+						if str(image) not in files:
+							image.rename(image.with_suffix(".tiff"))
 
-	print("Process completed. To start again, use --force")
+					for image in path.glob("*.tiff"):
+						if str(image) not in files:
+							process(image,batch_name,lang,tmp,prep,comp,False)
+
+					for image in path.glob("*.pdf"):
+						if str(image) not in files:
+							process(image,batch_name,lang,tmp,prep,comp,True)
+
+				else: 
+					
+					folderManager.create_TMP_B(batch_name)
+					folderManager.create_RESULT_B(batch_name)
+					docManager.write_process(batch_name)
+					
+					for image in path.glob("*.tif"):
+						image.rename(image.with_suffix(".tiff"))
+
+					for image in path.glob("*.tiff"):
+						process(image,batch_name,lang,tmp,prep,comp,False)
+
+					for image in path.glob("*.pdf"):
+						process(image,batch_name,lang,tmp,prep,comp,True)
+
+		else:
+			if (force):
+				forcing(path,batch_name)
+				if path.suffix == ".pdf":
+					process(path,batch_name,lang,tmp,prep,comp,True)
+				elif path.suffix == ".tif":
+					path.rename(path.with_suffix(".tiff"))
+				elif path.suffix == ".tiff":
+					process(path,batch_name,lang,tmp,prep,comp,False)
+
+
+			else: 
+				if exists(batch_name):
+					print("{} already exists and the process will continue. To start again, use --force".format(batch_name))
+					files = docManager.get_files(batch_name)
+					if str(file not in files):
+						if path.suffix == ".pdf":
+							process(path,batch_name,lang,tmp,prep,comp,True)
+						elif path.suffix == ".tif":
+							path.rename(path.with_suffix(".tiff"))
+						elif path.suffix == ".tiff":
+							process(path,batch_name,lang,tmp,prep,comp,False)
+
+				else: 
+					folderManager.create_TMP_B(batch_name)
+					folderManager.create_RESULT_B(batch_name)
+					docManager.write_process(batch_name)
+					if path.suffix == ".pdf":
+						process(path,batch_name,lang,tmp,prep,comp,True)
+					elif path.suffix == ".tif":
+						path.rename(path.with_suffix(".tiff"))
+					elif path.suffix == ".tiff":
+						process(path,batch_name,lang,tmp,prep,comp,False)
+
+	
 
 	
 

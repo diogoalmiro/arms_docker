@@ -2,11 +2,11 @@ import json
 from pathlib import Path
 import shutil
 from PIL import Image
+from PyPDF2 import PdfFileReader
 
-
-def write_name(batch_name,file):				#file = /home/App/docs/S-1911-0009-0009-00001 UC.tiff
+def write_name(batch_name,file,pdf):				#file = /home/App/docs/S-1911-0009-0009-00001 UC.tiff
 	if check_name(batch_name,file) == False:
-		doc = make_doc(file)
+		doc = make_doc(file,pdf)
 		name = str(Path.cwd()/"tmp"/batch_name/doc['name'])+".JSON"
 		update_data(name,doc)
 
@@ -23,10 +23,17 @@ def write_process(batch_name):
 	update_data(path,process)
 
 
-def make_doc(path):
+def make_doc(path,pdf):
+	pages_left = 0
 
-	img = Image.open(path)
-	pages_left = img.n_frames
+	if (pdf):
+		pdf_path = open(path,'rb')
+		pdf_reader = PdfFileReader(pdf_path)
+		pages_left = pdf_reader.getNumPages()
+	else:
+		img = Image.open(path)
+		pages_left = img.n_frames
+
 	file = {}
 	doc={}
 	doc['split'] = pages_left

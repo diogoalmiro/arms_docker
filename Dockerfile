@@ -10,6 +10,7 @@ RUN apt-get update \
     pkg-config \
     ffmpeg \
     libsm6 \
+    poppler-utils \
     libxext6  -y \
     && apt-get clean \
     && apt-get autoremove

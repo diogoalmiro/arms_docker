@@ -5,10 +5,14 @@
 # Input: name of the file to be splitted (must be TIFF)
 # Output: page_n.tiff (where n corresponds to the number of the page).
 
+import warnings
 from PIL import Image
 from pathlib import Path
 import folderManager
 import docManager
+from pdf2image import convert_from_path
+
+warnings.simplefilter("ignore", Image.DecompressionBombWarning)
 
 def split_pages(file,batch_name):
 	img_path = file
@@ -24,4 +28,18 @@ def split_pages(file,batch_name):
 			docManager.update_field(batch_name,name,'split',(i-1))
 		except EOFError:
 			break
+
+
+def split_pages_pdf(file,batch_name):
+	pdf_file = convert_from_path(file, 500)
+	name = file.parts[-1]
+	pages_path = str(Path.cwd()/"tmp"/batch_name/name/"pages")
+	pages_left = docManager.get_field(batch_name,name,'split')
+
+	for i in range(pages_left,0,-1):
+		try:
+			pdf_file[i-1].save(pages_path + "/page_%s.tiff" %i, 'TIFF')
+			docManager.update_field(batch_name,name,'split',(i-1))
+		except EOFError:
+			break		
 
