@@ -32,16 +32,20 @@ def split_pages(file,batch_name):
 
 def split_pages_pdf(file,batch_name):
 	name = file.parts[-1]
+	sp_pages = 0 
 	pages_path = str(Path.cwd()/"tmp"/batch_name/name/"pages")
 	pages_left = docManager.get_field(batch_name,name,'split')
-	for page in range(1, pages_left+1, 10) : 
-   		pdf_file = convert_from_path(file, dpi=200, first_page=page, last_page = min(page+10-1,pages_left))
 
-	for i in range(pages_left,0,-1):
-		try:
-			pdf_file[i-1].save(pages_path + "/page_%s.tiff" %i, 'TIFF')
-			docManager.update_field(batch_name,name,'split',(i-1))
-		except EOFError:
-			break		
+	for page in range(1, pages_left+1, 10): 
+
+   		pdf_file = convert_from_path(file, dpi=200, first_page=page, last_page = min(page+10-1,pages_left))
+   		
+   		for i in range(len(pdf_file),0,-1):
+   				print(i+sp_pages)
+   				pdf_file[i-1].save(pages_path + "/page_%d.tiff" %(i+sp_pages), 'TIFF')
+   				docManager.update_field(batch_name,name,'split',(i-1))
+
+   		sp_pages = len(pdf_file)
+   	
 
 
