@@ -35,7 +35,7 @@ def split_pages_pdf(file,batch_name):
 	pages_path = str(Path.cwd()/"tmp"/batch_name/name/"pages")
 	pages_left = docManager.get_field(batch_name,name,'split')
 	for page in range(1, pages_left+1, 10) : 
-   		convert_from_path(file, dpi=200, first_page=page, last_page = min(page+10-1,pages_left))
+   		pdf_file = convert_from_path(file, dpi=200, first_page=page, last_page = min(page+10-1,pages_left))
 
 	for i in range(pages_left,0,-1):
 		try:
