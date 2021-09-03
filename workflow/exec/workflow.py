@@ -96,7 +96,7 @@ def forcing(path,batch_name):
 	if exists(batch_name):
 		for file in process.glob("*.JSON"):
 			Path(file).unlink()
-		(Path.cwd().parents[0]/"results"/batch_name/path.parts[-1]/(str(path.parts[-1])+".pdf")).unlink()
+		(Path.cwd().parents[0]/"results"/batch_name/(str(path.parts[-1])+".pdf")).unlink()
 		docManager.delete_process(batch_name)
 		folderManager.create_TMP_B(batch_name)
 		folderManager.create_RESULT_B(batch_name)
@@ -104,7 +104,7 @@ def forcing(path,batch_name):
 
 def finished(batch_name,path):
 	file = str(path.parts[-1])+".pdf"
-	if ((Path.cwd().parents[0]/"results"/batch_name/path.parts[-1]/file).exists()):
+	if ((Path.cwd().parents[0]/"results"/batch_name/file).exists()):
 		return True
 
 

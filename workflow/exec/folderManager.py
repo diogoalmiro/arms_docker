@@ -33,7 +33,7 @@ def create_REG_TMP(batch_name,name):
 def create_RESULT(batch_name,name): 
 
 	previous = Path.cwd().parents[0]
-	folder = previous/"results"/batch_name/name
+	folder = previous/"results"/batch_name
 	if not Path(folder).exists():
 		Path(folder).mkdir()
 

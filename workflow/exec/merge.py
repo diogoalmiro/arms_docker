@@ -159,7 +159,7 @@ def merge(name,tmp,batch_name):
     filename = name+'.pdf'
     
     path = Path.cwd()/"tmp"/batch_name/name/"pages"
-    path2 = Path.cwd().parents[0]/"results"/batch_name/name/filename
+    path2 = Path.cwd().parents[0]/"results"/batch_name/filename
 
     export_pdf(path,200,str(path2))
 
