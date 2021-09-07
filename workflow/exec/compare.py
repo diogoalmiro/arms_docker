@@ -53,7 +53,8 @@ def modify(tmpPathPages, tmpPathRegions, tmp):
 		pw.change_hocr(page,changes)
 
 		if not tmp:
-			tmpPathRegions.glob("*.tiff").unlink()
+			for region in tmpPathRegions.glob("*.tiff")
+				region.unlink()
 
 
 					
