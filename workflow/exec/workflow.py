@@ -84,7 +84,7 @@ def main(path,lang,tmp,prep,comp,force):
 		# Check if we generated a -ocr.pdf file already
 		processed = Path(file.parent,"%s-ocr.pdf"%name )
 		if processed.exists():
-			if force:
+			if force and processed.is_file():
 				processed.unlink()
 			else:
 				print("Ignoring %s"%file, file=sys.stderr)
