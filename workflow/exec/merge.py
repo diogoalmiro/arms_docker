@@ -144,6 +144,6 @@ CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=
 def merge(tmpPathPages, outputPath, tmp):
     export_pdf(tmpPathPages,200,outputPath)
     if not tmp:
-        for images in tmpPathPages.glob("page_*.tiff"):
+        for image in tmpPathPages.glob("page_*.tiff"):
             image.unlink()
 
