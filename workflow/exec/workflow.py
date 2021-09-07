@@ -49,7 +49,8 @@ def process(inputFile, outputFile, languages, keepTMP, doPreprocess, doCompariss
 	
 	if not keepTMP:
 		for tmp in tmpPath.glob('**/*'):
-			tmp.unlink()
+			if tmp.is_file():
+				tmp.unlink()
 
 
 @click.command()
@@ -84,7 +85,7 @@ def main(path,lang,tmp,prep,comp,force):
 		# Check if we generated a -ocr.pdf file already
 		processed = Path(file.parent,"%s-ocr.pdf"%name )
 		if processed.exists():
-			if force and processed.is_file():
+			if force:
 				processed.unlink()
 			else:
 				print("Ignoring %s"%file, file=sys.stderr)
