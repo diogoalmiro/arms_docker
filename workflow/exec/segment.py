@@ -8,7 +8,7 @@ import json
 warnings.simplefilter("ignore", Image.DecompressionBombWarning)
 
 #coords = [x,y,w,h]
-TESSDATA_PATH = str(Path.cwd().parents[0]/'tessdata')
+TESSDATA_PATH = Path.cwd()/'tessdata'
 
 def define_regions(image,langs):
 
@@ -18,7 +18,7 @@ def define_regions(image,langs):
 
 	lang = "+".join(langs)
 	
-	with tr.PyTessBaseAPI(path=TESSDATA_PATH, lang=lang) as api:
+	with tr.PyTessBaseAPI(path=str(TESSDATA_PATH), lang=lang) as api:
 		api.SetImage(img)
 		hocr_file = api.GetHOCRText(0)
 		boxes = api.GetComponentImages(tr.RIL.TEXTLINE,True)		

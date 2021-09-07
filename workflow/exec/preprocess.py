@@ -7,13 +7,13 @@ import numpy as np
 
 # Produces hocr file 
 # Produces input image 
-TESSDATA_PATH = str(Path.cwd().parents[0]/'tessdata')
+TESSDATA_PATH = Path.cwd()/'tessdata'
 
 def pre(image,langs):
 	lang = "+".join(langs)
 	img = Image.open(image)
 
-	with PyTessBaseAPI(path=TESSDATA_PATH, lang=lang) as api:
+	with PyTessBaseAPI(path=str(TESSDATA_PATH), lang=lang) as api:
 		api.SetImage(img)
 		input_img = api.GetThresholdedImage()
 
