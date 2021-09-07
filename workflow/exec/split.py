@@ -25,7 +25,7 @@ def split_pages(file,pages_path):
 
 
 def split_pages_pdf(file,pages_path):
-	pdf_pages = convert_from_path(file, paths_only=True, fmt="tiff") #output_file option creates weird filenames (issue: https://github.com/Belval/pdf2image/issues/183)
+	pdf_pages = convert_from_path(file, paths_only=True, output_folder="/tmp/", fmt="tiff") #output_file option creates weird filenames (issue: https://github.com/Belval/pdf2image/issues/183)
 	for i, pdf_page in enumerate(pdf_pages):
 		Path(pdf_page).rename(pages_path/("page_%04d.tiff"%i))
 	
