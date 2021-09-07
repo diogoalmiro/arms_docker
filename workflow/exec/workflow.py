@@ -48,7 +48,8 @@ def process(inputFile, outputFile, languages, keepTMP, doPreprocess, doCompariss
 	print("done (%s)"%(time.time() - start))
 	
 	if not keepTMP:
-		tmpPath.glob('**/*').unlink()
+		for tmp in tmpPath.glob('**/*'):
+			tmp.unlink()
 
 
 @click.command()
