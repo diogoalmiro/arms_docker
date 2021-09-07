@@ -1,9 +1,8 @@
 FROM ubuntu:18.04
 
-RUN apt-get update \
-    && apt-get install tesseract-ocr -y \
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
     python3 \
-    #python-setuptools \
     python3-pip \
     libtesseract-dev \
     libleptonica-dev \
@@ -11,7 +10,7 @@ RUN apt-get update \
     ffmpeg \
     libsm6 \
     poppler-utils \
-    libxext6  -y \
+    libxext6 \
     && apt-get clean \
     && apt-get autoremove
 
@@ -24,3 +23,5 @@ RUN pip3 install -r ../requirements.txt
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
+
+ENV PYTHONUNBUFFERED=1

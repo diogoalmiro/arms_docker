@@ -2,8 +2,6 @@ import os
 from tesserocr import PyTessBaseAPI, RIL
 from PIL import Image
 from pathlib import Path
-import folderManager
-import docManager
 import cv2
 import numpy as np
 
@@ -12,7 +10,7 @@ import numpy as np
 TESSDATA_PATH = str(Path.cwd().parents[0]/'tessdata')
 
 def pre(image,langs):
-	lang = docManager.parse_langs(langs)
+	lang = "+".join(langs)
 	img = Image.open(image)
 
 	with PyTessBaseAPI(path=TESSDATA_PATH, lang=lang) as api:
@@ -24,24 +22,16 @@ def pre(image,langs):
 
 
 
-def pre_process(name,langs,prep,batch_name):
-	path = Path.cwd()/"tmp"/batch_name/name/"pages"
-	destination = Path.cwd()/"tmp"/batch_name/name/"regions"
-	pages_left = docManager.get_field(batch_name,name,'preprocess')
-
-	for i in range(pages_left,0,-1):
-		image = path/"page_{}.tiff".format(i)
-		imgname = destination/str(image.stem+".tiff")
-
-		input_img = pre(image,langs)
-
-		if (prep):
-			add_preprocess(image,imgname)
+def pre_process(tmpPathPages, tmpPathRegions, langs, prep):
+	for page_image in tmpPathPages.glob("page_*.tiff"):
+		dest = tmpPathRegions/page_image;
+		if dest.exists():
+			continue
+		processed = pre(page_image, langs);
+		if(prep):
+			add_preprocess(page_image, dest)
 		else:
-			input_img.save(str(imgname))
-
-		
-		docManager.update_field(batch_name,name,'preprocess',(i-1))
+			processed.save(dest)
 		
 
 def add_preprocess(img_path,img_name):

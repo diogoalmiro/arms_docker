@@ -2,18 +2,12 @@ from pathlib import Path
 import parser_r as pr
 import parser_w as pw
 import json
-import docManager
-import folderManager
 import shutil
 
-def get_ocr(name,batch_name):
-	path = Path.cwd()/"tmp"/batch_name/name/"regions"/"regions.JSON"
-	with open(path,"rb") as file:
-		data = json.load(file)
-		return data
+def get_ocr(tmpPathRegions):
+	return json.loads((tmpPathRegions/"regions.json").read_text())
 
-
-def get_hocr(name,page):
+def get_hocr(page):
 	lines = []
 	areas = pr.get_areas(page)
 	for area in areas:
@@ -23,12 +17,12 @@ def get_hocr(name,page):
 	return lines
 
 
-def compare(name,page,batch_name):
-	aux = get_ocr(name,batch_name)
-	d1 = get_hocr(name,page)
+def compare(hocrPage, tmpPathPages, tmpPathRegions):
+	aux = get_ocr(tmpPathRegions)
+	d1 = get_hocr(hocrPage)
 	new_d1 = []
 
-	image = str(page.stem) + ".tiff"
+	image = str(hocrPage.stem) + ".tiff"
 
 	for page in aux:
 		if page['image'] == image:
@@ -53,14 +47,13 @@ def compare(name,page,batch_name):
 	return new_d1
 
 
-def modify(name,tmp,batch_name):
-	path = Path.cwd()/"tmp"/batch_name/name/"pages"
-	for page in path.glob("*.hocr"):
-		changes = compare(name,page,batch_name)
+def modify(tmpPathPages, tmpPathRegions, tmp):
+	for page in tmpPathPages.glob("*.hocr"):
+		changes = compare(page, tmpPathPages, tmpPathRegions)
 		pw.change_hocr(page,changes)
 
 		if not tmp:
-			docManager.delete_regions(batch_name,name)
+			tmpPathRegion.glob("*.tiff").unlink()
 
 
 					

@@ -1,11 +1,8 @@
 import warnings
 from PIL import Image
 import cv2
-import numpy as np
 import tesserocr as tr
 from pathlib import Path
-import folderManager
-import docManager
 import json
 
 warnings.simplefilter("ignore", Image.DecompressionBombWarning)
@@ -19,7 +16,7 @@ def define_regions(image,langs):
 	
 	img = Image.open(image)
 
-	lang = docManager.parse_langs(langs)
+	lang = "+".join(langs)
 	
 	with tr.PyTessBaseAPI(path=TESSDATA_PATH, lang=lang) as api:
 		api.SetImage(img)
@@ -27,16 +24,15 @@ def define_regions(image,langs):
 		boxes = api.GetComponentImages(tr.RIL.TEXTLINE,True)		
 
 		i = 1
-		for (_,box,_,_) in boxes:
-
+		for (_1,box,_2,_3) in boxes:
 			x,y,w,h = box['x'],box['y'],box['w'],box['h']
 			region = {}
 			region['id'] = "line_1_" + str(i)
 			region['bbox'] = [x,y,x+w,y+h]
 			region['coords'] = [x,y,w,h]
 			region['filename'] = ""
-			region['text'] = []
-			region['word_conf'] = [] 
+			region['text'] = ""
+			region['word_conf'] = 0 
 			region['hocr_path'] = ""
 			i+=1
 			regions.append(region)
@@ -63,44 +59,23 @@ def crop(coords,image):
 
 
 
-def save(name,lang,tmp,batch_name):
-	path = Path.cwd()/"tmp"/batch_name/name/"regions"
-	path2 = Path.cwd()/"tmp"/batch_name/name/"pages"
+def save(tmpPathPages, tmpPathRegions, lang, tmp):
+	if (tmpPathRegions/"regions.json").exists():
+		return
 	blocks = []
-	pages_left = docManager.get_field(batch_name,name,'segment')
-
-
-	for i in range(pages_left,0,-1):
-		image = path/"page_{}.tiff".format(i)
-		hocr_file, regions = define_regions(str(image),lang)
-		hocr_filename = path2/str(image.stem+".hocr")
+	for page_image in tmpPathPages.glob("page_*.tiff"):
+		hocr_filename = tmpPathPages/(page_image.stem+".hocr")
+		hocr_file, regions = define_regions(page_image, lang)
 		block = {}
-		block['image'] = str(image.parts[-1])
-		block['regions'] = regions
+		block["image"] = page_image.name
+		block["regions"] = regions
 		blocks.append(block)
-
-		with open(str(hocr_filename),"w") as f:  
-			f.write(str(hocr_file))
-
-		for region in regions:
-			filename = path/str(image.stem + '_%s.tiff'%(regions.index(region)+1))
-			region['filename'] = str(filename)
-			region['hocr_path'] = str(path2/image.stem) + '.hocr'
-			result = crop(region['coords'],str(image))
-			cv2.imwrite(str(filename),result)
-
-		if not tmp:
-			
-			image.unlink()
-
-		docManager.update_field(batch_name,name,'segment',(i-1))
-
-	with open(path/'regions.JSON','w') as file:
-		json.dump(blocks,file)
-
-	
-	return blocks
-
+		hocr_filename.write_text(hocr_file)
 		
-
-	
+		for i, region in enumerate(regions):
+			filename = tmpPathRegions/(page_image.stem+'_%s.tiff'%(i+1))
+			region["filename"] = str(filename)
+			region["hocr_path"] = str(hocr_filename)
+			result = crop(region["coords"], str(page_image))
+			cv2.imwrite(str(filename),result)
+	(tmpPathRegions/"regions.json").write_text(json.dumps(blocks))

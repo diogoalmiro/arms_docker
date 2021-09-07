@@ -17,8 +17,6 @@
 # Create a searchable PDF from a pile of HOCR + JPEG. Tested with
 # Tesseract.
 
-import folderManager
-import docManager
 import base64
 import glob
 import io
@@ -37,25 +35,13 @@ from pathlib import Path
 
 
 
-def export_pdf(playground, default_dpi, savefile=False):
-    images = []    
-    images_old = glob.glob(os.path.join(playground, '*.tiff'))
-
-    for i in range(1,len(images_old)+1,1):
-        page = "page_{}.tiff".format(i)
-        for elem in images_old:
-            if elem.find(page) != -1:
-                images.append(elem)
-
-    if len(images) == 0:
-        print("WARNING: No images found in the folder")
-        sys.exit(0)
-   
+def export_pdf(tmpPathPages, default_dpi, savefile=False):
+    images = sorted(tmpPathPages.glob("page_*.tiff")) # neither iterdir or glob sorts the files
     load_invisible_font()
   
-    pdf = Canvas(savefile, pageCompression=1)
+    pdf = Canvas(str(savefile), pageCompression=1)
     pdf.setCreator('hocr-tools')
-    pdf.setTitle(os.path.basename(playground))
+    pdf.setTitle(savefile.stem)
     dpi = default_dpi
   
     for image in images:
@@ -155,17 +141,9 @@ CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=
     pdfmetrics.registerFont(TTFont('invisible', ttf))
 
 
-def merge(name,tmp,batch_name):
-    filename = name+'.pdf'
-    
-    path = Path.cwd()/"tmp"/batch_name/name/"pages"
-    path2 = Path.cwd().parents[0]/"results"/batch_name/filename
-
-    export_pdf(path,200,str(path2))
-
-    
+def merge(tmpPathPages, outputPath, tmp):
+    export_pdf(tmpPathPages,200,outputPath)
     if not tmp:
-        folderManager.delete_IMG_TMP(batch_name,name)
-
-
+        for images in tmpPathPages.glob("page_*.tiff"):
+            image.unlink()
 
