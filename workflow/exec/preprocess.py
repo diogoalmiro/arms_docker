@@ -3,20 +3,17 @@ from tesserocr import PyTessBaseAPI, RIL
 from PIL import Image
 from pathlib import Path
 import cv2
-import numpy as np
 
-# Produces hocr file 
-# Produces input image 
-TESSDATA_PATH = Path.cwd()/'tessdata'
+TESSDATA_PATH_BEST = Path.cwd()/'tessdata_best'
+TESSDATA_PATH_FAST = Path.cwd()/'tessdata_fast'
 
 def pre(image,langs):
 	lang = "+".join(langs)
 	img = Image.open(image)
 
-	with PyTessBaseAPI(path=str(TESSDATA_PATH), lang=lang) as api:
+	with PyTessBaseAPI(path=str(TESSDATA_PATH_FAST), lang=lang) as api:
 		api.SetImage(img)
 		input_img = api.GetThresholdedImage()
-
 
 	return input_img
 
@@ -62,7 +59,7 @@ def thresholding(image):
 
 #dilation
 def dilate(image):
-    kernel = np.ones((5,5),np.uint8)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
     img = cv2.dilate(image, kernel, iterations = 1)
     return img
    

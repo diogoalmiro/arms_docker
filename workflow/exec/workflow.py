@@ -12,7 +12,8 @@ import time
 import tempfile
 import urllib.request
 
-TESSDATA_PATH = Path.cwd()/'tessdata'
+TESSDATA_PATH_BEST = Path.cwd()/'tessdata_best'
+TESSDATA_PATH_FAST = Path.cwd()/'tessdata_fast'
 
 def process(inputFile, outputFile, languages, keepTMP, doPreprocess, doComparisson ):
 	fullname = inputFile.name
@@ -76,7 +77,8 @@ def main(path,lang,tmp,prep,comp,force):
 	for l in lang:
 		try:
 			print("Downloading %s.traineddata - "%l, end="")
-			urllib.request.urlretrieve("https://github.com/tesseract-ocr/tessdata_best/raw/master/%s.traineddata"%l, TESSDATA_PATH/("%s.traineddata"%l))
+			urllib.request.urlretrieve("https://github.com/tesseract-ocr/tessdata_best/raw/master/%s.traineddata"%l, TESSDATA_PATH_BEST/("%s.traineddata"%l))
+			urllib.request.urlretrieve("https://github.com/tesseract-ocr/tessdata_fast/raw/master/%s.traineddata"%l, TESSDATA_PATH_FAST/("%s.traineddata"%l))
 			print("Success")
 		except:
 			print("Error")
